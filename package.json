@@ -6,7 +6,7 @@
   ],
   "homepage": "",
   "description": "nodejs client for service coodernation with zookeeper",
-  "keywords": [ nodejs,service,zookeeper],
+  "keywords": ["nodejs","service","zookeeper"],
   "dependencies": {
   },
   "engines": {
