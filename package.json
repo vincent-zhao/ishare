@@ -1,0 +1,22 @@
+{
+  "name": "service-center",
+  "version": "0.1.0",
+  "author": "Vincent-zhao (zzqvincent@gmail.com)",
+  "contributors": [
+  ],
+  "homepage": "",
+  "description": "nodejs client for service coodernation with zookeeper",
+  "keywords": [ nodejs,service,zookeeper],
+  "dependencies": {
+  },
+  "engines": {
+    "node": ">=0.6.17"
+  },
+  "devDependencies": {
+    "should"    : ">=0.4.2",
+    "mocha"     : ">=0.9.0"
+  },
+  "scripts": {
+    "test": "make test"
+  }
+}
