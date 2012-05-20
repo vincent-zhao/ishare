@@ -49,7 +49,8 @@ registerService('testService','1.0',
 );
 ```
 
-**注销服务：unRegisterService(cb);
+
+**注销服务：unRegisterService(cb);**
 
 * cb:注销动作后的回调函数
 
@@ -62,7 +63,8 @@ obj.unRegisterService(function(err){
 });
 ```
 
-**获取所有服务：getServiceAll(serviceName,filter,cb,w_cb);
+
+**获取所有服务：getServiceAll(serviceName,filter,cb,w_cb);**
 
 * serviceName:服务名称
 * filter:服务筛选条件
@@ -96,7 +98,8 @@ ServiceCenter.getServiceAll('testServiceName',
 );
 ```
 
-**获取任一服务：getServiceAny(serviceName,filter,cb,w_cb);
+
+**获取任一服务：getServiceAny(serviceName,filter,cb,w_cb);**
 
 * serviceName:服务名称
 * filter:服务筛选条件
