@@ -1,3 +1,5 @@
+[![Build Status](https://secure.travis-ci.org/vincent-zhao/service-center.png?branch=master)](http://travis-ci.org/vincent-zhao/service-center)
+
 # 介绍
 
 `service-center`是一个nodejs客户端，其配合zookeeper来提供服务协调的功能。用户可以使用此客户端在zookeeper上方便的注册服务或者获取服务。服务注册注销和服务之间的相互调用变得非常便捷。
