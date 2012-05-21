@@ -8,4 +8,5 @@ if [ ! -d "$path/node_modules" ]; then
   unzip master && rm master && mv vincent* zookeeper && cd zookeeper
   node-waf configure build
   npm install
+  cd $path && npm install
 fi
