@@ -140,6 +140,7 @@ describe('client test',function(){
         var infos = [{
           serviceName : testConf.servicePath.split('/')[2],
           version : '1.0',
+          ctlInfo:{tm:1000},
           nodeInfo : {
             method : 'GET',
             url    : 'http://127.0.0.1:9111/',
@@ -180,6 +181,7 @@ describe('client test',function(){
         var infos = [{
           serviceName : testConf.servicePath.split('/')[2],
           version : '1.0',
+          ctlInfo : {tm:1000},
           nodeInfo : {
             method : 'GET',
             room   : 'CM4'
@@ -200,6 +202,7 @@ describe('client test',function(){
         var info = {
           serviceName : testConf.servicePath.split('/')[2],
           version : '6.0',
+          ctlInfo : {tm:1000},
           nodeInfo : {
             method : 'GET',
             url    : 'http://127.0.0.1:9115/',
@@ -230,6 +233,43 @@ describe('client test',function(){
       });
       /*}}}*/
 
+      /*{{{ test not given zk addr ok */
+      it('test not given zk addr',function(done){
+        Client.init({
+          user : testConf.user,
+          pwd  : testConf.pwd,
+          localPath : testConf.localPath,
+          root : '/'+testConf.servicePath.split('/')[1]
+        });
+
+        var infos = [{
+          serviceName : testConf.servicePath.split('/')[2],
+          version : '1.0',
+          ctlInfo : {tm:1000},
+          nodeInfo : {
+            url : 'http://127.0.0.1:7115',
+            method : 'GET',
+            room   : 'CM4'
+          },
+          cb : function(err,obj){
+            err.should.eql('call init function first!');
+
+            Client.init({
+              addr : testConf.addr,
+              user : testConf.user,
+              pwd  : testConf.pwd,
+              localPath : testConf.localPath,
+              root : '/'+testConf.servicePath.split('/')[1]
+            });
+
+            done();
+          }
+        }];
+
+        registerServices(infos);
+      });
+      /*}}}*/
+
     });
 
     describe('getService test',function(){
@@ -251,6 +291,7 @@ describe('client test',function(){
           {
             serviceName : testConf.servicePath.split('/')[2],
             version : '1.0',
+            ctlInfo : {tm:1000},
             nodeInfo : {
               method : 'GET',
               url    : 'http://127.0.0.1:9111/',
@@ -261,6 +302,7 @@ describe('client test',function(){
           {
             serviceName : testConf.servicePath.split('/')[2],
             version : '2.0',
+            ctlInfo : {tm:1000},
             nodeInfo : {
               method : 'GET',
               url    : 'http://127.0.0.1:9112/',
@@ -271,6 +313,7 @@ describe('client test',function(){
           {
             serviceName : testConf.servicePath.split('/')[2],
             version : '2.0',
+            ctlInfo : {tm:1000},
             nodeInfo : {
               method : 'GET',
               url    : 'http://127.0.0.1:9113/',
@@ -281,6 +324,7 @@ describe('client test',function(){
           {
             serviceName : testConf.servicePath.split('/')[2],
             version : '2.0',
+            ctlInfo : {tm:1000},
             nodeInfo : {
               method : 'GET',
               url    : 'http://127.0.0.1:9114/',
@@ -309,7 +353,7 @@ describe('client test',function(){
       it('test getServiceAny ok',function(done){
         var caseCount = 4;
 
-        Client.getServiceAny(testConf.servicePath.split('/')[2], "2.0", function(err,nodeInfo){
+        Client.getServiceAny(testConf.servicePath.split('/')[2], "2.0", {tm:10000}, function(err,nodeInfo){
           var url = nodeInfo.url;
           if(url === 'http://127.0.0.1:9112/' || url === 'http://127.0.0.1:9113/' || url === 'http://127.0.0.1:9114/'){
             true.should.be.ok;
@@ -326,7 +370,7 @@ describe('client test',function(){
           {
             version : {min:"2.0"},
             room    : 'CM4'
-          }, 
+          }, {tm:10000},
           function(err,nodeInfo){
             var url = nodeInfo.url;
             if(url === 'http://127.0.0.1:9113/' || url === 'http://127.0.0.1:9114/'){
@@ -339,7 +383,7 @@ describe('client test',function(){
             }
           },false);
           
-        Client.getServiceAny(testConf.servicePath.split('/')[2], "0", function(err,nodeInfo){
+        Client.getServiceAny(testConf.servicePath.split('/')[2], "0",{tm:10000}, function(err,nodeInfo){
           var url = nodeInfo.url;
           if(url === 'http://127.0.0.1:9112/' || url === 'http://127.0.0.1:9113/' || url === 'http://127.0.0.1:9114/'){
             true.should.be.ok;
@@ -356,7 +400,7 @@ describe('client test',function(){
           {
             version : {min:"3.0"},
             room    : 'CM4'
-          }, 
+          }, {tm:10000},
           function(err,nodeInfo){
             err.should.eql('no such services');
             if(--caseCount === 0){
@@ -369,9 +413,9 @@ describe('client test',function(){
 
       /*{{{ test getServiceAll ok */
       it('test getServiceAll ok',function(done){
-        var caseCount = 3;
+        var caseCount = 5;
 
-        Client.getServiceAll(testConf.servicePath.split('/')[2],"2.0",function(err,nodeInfos){
+        Client.getServiceAll(testConf.servicePath.split('/')[2]+'/',"2.0",{tm:10000},function(err,nodeInfos){
           nodeInfos.length.should.eql(3);
           nodeInfos[0].method.should.eql('GET');
           if(--caseCount === 0){
@@ -383,7 +427,7 @@ describe('client test',function(){
           {
             version : {min : "2.0"},
             room    : 'CM4'
-          },
+          },{tm:10000},
           function(err,nodeInfos){
             nodeInfos.length.should.eql(2);
             nodeInfos[0].method.should.eql('GET');
@@ -396,9 +440,28 @@ describe('client test',function(){
           {
             version : {min : "5.0"},
             room    : 'CM4'
-          },
+          },{tm:10000},
           function(err,nodeInfos){
             err.should.eql('no such services');
+            if(--caseCount === 0){
+              done();
+            }
+        },false);
+
+        Client.getServiceAll(testConf.servicePath.split('/')[2],
+          {
+            room    : 'CM4'
+          },{tm:10000},
+          function(err,nodeInfos){
+            err.should.eql('please tell which version');
+            if(--caseCount === 0){
+              done();
+            }
+        },false);
+
+        Client.getServiceAll(testConf.servicePath.split('/')[2],1,{tm:10000},
+          function(err,nodeInfos){
+            err.should.eql('unsupport filter type');
             if(--caseCount === 0){
               done();
             }
@@ -407,10 +470,46 @@ describe('client test',function(){
       });
       /*}}}*/
 
+      /*{{{ test twice test use local cache ok */
+      it('test twice test use local cache ok',function(done){
+        Client.init({
+          addr : testConf.addr,
+          user : testConf.user,
+          pwd  : testConf.pwd,
+          localPath : testConf.localPath,
+          root : '/'+testConf.servicePath.split('/')[1],
+          checkInterval : 100000
+        });
+
+        Client.getServiceAll(testConf.servicePath.split('/')[2],"2.0",{tm:10000},function(err,nodeInfos){
+          nodeInfos.length.should.eql(3);
+          nodeInfos[0].method.should.eql('GET');
+
+          setTimeout(function(){
+            Client.getServiceAll(testConf.servicePath.split('/')[2],"2.0",{tm:10000},function(err,nodeInfos){
+              nodeInfos.length.should.eql(3);
+              nodeInfos[0].method.should.eql('GET');
+
+              Client.init({
+                addr : testConf.addr,
+                user : testConf.user,
+                pwd  : testConf.pwd,
+                localPath : testConf.localPath,
+                root : '/'+testConf.servicePath.split('/')[1],
+                checkInterval : 500
+              });
+
+              done();
+            },false);
+          },2000);
+        },false);
+      });
+      /*}}}*/
+
       /*{{{ test getServiceAny offline ok */
       it('test getServiceAny offline ok',function(done){
         var c = 2;
-        Client.getServiceAny(testConf.servicePath.split('/')[2], "2.0"
+        Client.getServiceAny(testConf.servicePath.split('/')[2], "2.0",{tm:10000}
           ,function(err,nodeInfo){
             var url = nodeInfo.url;
             for(var i in tmpArr){
@@ -446,7 +545,7 @@ describe('client test',function(){
           {
             version : {min : '2.0'},
             room    : 'CM4'
-          },
+          },{tm:10000},
           function(err,nodeInfos){
             if(err){
               false.should.be.ok;
@@ -456,6 +555,7 @@ describe('client test',function(){
             var info = {
               serviceName : testConf.servicePath.split('/')[2],
               version : '2.0',
+              ctlInfo : {tm:1000},
               nodeInfo : {
                 method : 'GET',
                 url    : 'http://127.0.0.1:9115/',
@@ -492,12 +592,13 @@ describe('client test',function(){
           {
             version : {min : '2.0'},
             room    : 'CM4'
-          },
+          },{tm:10000},
           function(err,nodeInfos){
             firstNodes = nodeInfos;
             var info = {
               serviceName : testConf.servicePath.split('/')[2],
               version : '2.0',
+              ctlInfo : {tm:1000},
               nodeInfo : {
                 method : 'GET',
                 url    : 'http://127.0.0.1:9115/',
@@ -534,6 +635,7 @@ describe('client test',function(){
         var info = {
           serviceName : testConf.servicePath.split('/')[2],
           version : '2.0',
+          ctlInfo : {tm:1000},
           nodeInfo : {
             method : 'GET',
             url    : 'http://127.0.0.1:9211/',
@@ -544,7 +646,7 @@ describe('client test',function(){
               {
                 version : {min : "2.0"},
                 room    : 'CM4'
-              }
+              },{tm:10000}
               ,function(err,nodeInfos){
                 zk.a_get_children(testConf.servicePath+'/version2.0',false,function(rc,error,children){
                   if(rc != 0){
@@ -566,17 +668,18 @@ describe('client test',function(){
       });
       /*}}}*/
 
-      /*{{{ test severval watch callback ok when event happens */
-      it('test severval watch callback ok when event happens',function(done){
+      /*{{{ test several watch callback ok when event happens */
+      it('test several watch callback ok when event happens',function(done){
         var watchers = 2;
         var cases = 2;
 
         for(var i = 0;i < 2;i++){
-          Client.getServiceAll(testConf.servicePath.split('/')[2],"2.0",function(err,nodeInfos){
+          Client.getServiceAll(testConf.servicePath.split('/')[2],"2.0",{tm:10000},function(err,nodeInfos){
             if(--watchers === 0){
               var info = {
                 serviceName : testConf.servicePath.split('/')[2],
                 version : '2.0',
+                ctlInfo : {tm:1000},
                 nodeInfo : {
                   method : 'GET',
                   url    : 'http://127.0.0.1:9115/',
@@ -598,12 +701,12 @@ describe('client test',function(){
 
       /*{{{ test localize and loadFile ok */
       it('test localize and loadFile ok',function(done){
-        Client.getServiceAll(testConf.servicePath.split('/')[2],"2.0",function(err,nodeInfos){
-          var get = JSON.parse(fs.readFileSync(testConf.localPath+'/local').toString());
+        Client.getServiceAll(testConf.servicePath.split('/')[2],"2.0",{tm:10000},function(err,nodeInfos){
+          var get = JSON.parse(fs.readFileSync(testConf.localPath).toString());
           get[JSON.stringify({service:testConf.servicePath,filter:"2.0"})].infos.length.should.eql(3);
 
-          Client.cleanCache();
           Client.zkClose();
+          Client.cleanCache();
 
           Client.init({
             addr : '127.0.0.1:8765',
@@ -613,20 +716,22 @@ describe('client test',function(){
             root : '/'+testConf.servicePath.split('/')[1]
           });
 
-          Client.getServiceAll(testConf.servicePath.split('/')[2],"2.0",function(err,nodeInfos){
-            nodeInfos.length.should.eql(3);
+          setTimeout(function(){
+            Client.getServiceAll(testConf.servicePath.split('/')[2],"2.0",{tm:10000},function(err,nodeInfos){
+              nodeInfos.length.should.eql(3);
 
-            Client.init({
-              addr : testConf.addr,
-              user : testConf.user,
-              pwd  : testConf.pwd,
-              localPath : testConf.localPath,
-              root : '/'+testConf.servicePath.split('/')[1]
-            });
+              Client.init({
+                addr : testConf.addr,
+                user : testConf.user,
+                pwd  : testConf.pwd,
+                localPath : testConf.localPath,
+                root : '/'+testConf.servicePath.split('/')[1]
+              });
 
-            done();
+              done();
 
-          },false);
+            },false);
+          },2000);
 
         },false);
       });
@@ -638,13 +743,14 @@ describe('client test',function(){
           {
             version : {min : "2.0"},
             room    : 'CM6'
-          }
+          },{tm:10000}
           ,function(err,nodeInfos){
             nodeInfos.length.should.eql(0);
 
             var info = {
               serviceName : testConf.servicePath.split('/')[2],
               version : '2.0',
+              ctlInfo : {tm:1000},
               nodeInfo : {
                 method : 'GET',
                 url    : 'http://127.0.0.1:9115/',
@@ -668,12 +774,13 @@ describe('client test',function(){
         var trigger = new EventEmitter();
         var step = 0;
 
-        Client.getServiceAll(testConf.servicePath.split('/')[2], "0", function(err,nodeInfos){
+        Client.getServiceAll(testConf.servicePath.split('/')[2], "0", {tm:10000}, function(err,nodeInfos){
           nodeInfos.length.should.eql(3);
 
           var info = {
             serviceName : testConf.servicePath.split('/')[2],
             version : '4.0',
+            ctlInfo : {tm:1000},
             nodeInfo : {
               method : 'GET',
               url    : 'http://127.0.0.1:9115/',
@@ -686,6 +793,7 @@ describe('client test',function(){
                 var oldNode = {
                   serviceName : testConf.servicePath.split('/')[2],
                   version : '2.0',
+                  ctlInfo : {tm:1000},
                   nodeInfo : {
                     method : 'GET',
                     url    : 'http://127.0.0.1:9115/',
@@ -730,13 +838,14 @@ describe('client test',function(){
         Client.getServiceAll(testConf.servicePath.split('/')[2], 
           {
             version:{min:'2.0'}
-          }
+          },{tm:10000}
           , function(err,nodeInfos){
           nodeInfos.length.should.eql(3);
 
           var info = {
             serviceName : testConf.servicePath.split('/')[2],
             version : '4.0',
+            ctlInfo : {tm:1000},
             nodeInfo : {
               method : 'GET',
               url    : 'http://127.0.0.1:9115/',
@@ -791,6 +900,7 @@ describe('client test',function(){
             {
               serviceName : testConf.servicePath.split('/')[2],
               version : '2.0',
+              ctlInfo:{tm:1000},
               nodeInfo : {
                 method : 'GET',
                 url    : 'http://127.0.0.1:6666/',
@@ -801,6 +911,7 @@ describe('client test',function(){
             {
               serviceName : testConf.servicePath.split('/')[2],
               version : '2.0',
+              ctlInfo:{tm:1000},
               nodeInfo : {
                 method : 'GET',
                 url    : 'http://127.0.0.1:7777/',
@@ -813,7 +924,7 @@ describe('client test',function(){
           
           function callback(){
             if(--count === 0){
-              Client.getServiceAll(testConf.servicePath.split('/')[2], "2.0", function(err,nodeInfos){
+              Client.getServiceAll(testConf.servicePath.split('/')[2], "2.0", {tm:10000},function(err,nodeInfos){
               },function(err,nodeInfos){
                 if(step === 0){
                   step++;
@@ -849,6 +960,56 @@ describe('client test',function(){
       });
       /*}}}*/
 
+      /*{{{ test getServiceAll with self hb function */
+      it('test getServiceAll with self hb function',function(done){
+        var passed = false;
+        Client.getServiceAll(testConf.servicePath.split('/')[2],"2.0",
+          {
+            tm : 10000,
+            hbFunc : function(addr,cb){
+              passed = true;
+              cb('');
+            }
+          }
+          ,function(err,nodeInfos){
+            nodeInfos.length.should.eql(3);
+            nodeInfos[0].method.should.eql('GET');
+            setTimeout(function(){
+              if(passed){
+                done();
+              }
+            },3000);
+          }
+          ,function(err,nodeInfos){
+            false.should.be.ok;
+          }
+        );
+      });
+      /*}}}*/
+
+      /*{{{ test getServiceAll with self useless hb function */
+      it('test getServiceAll with self useless hb function',function(done){
+        var passed = false;
+        Client.getServiceAll(testConf.servicePath.split('/')[2],"2.0",
+          {
+            tm : 10000,
+            hbFunc : function(addr,cb){
+              passed = true;
+              cb('error');
+            }
+          }
+          ,function(err,nodeInfos){
+            nodeInfos.length.should.eql(3);
+            nodeInfos[0].method.should.eql('GET');
+          }
+          ,function(err,nodeInfos){
+            nodeInfos.length.should.eql(0);
+            done();
+          }
+        );
+      });
+      /*}}}*/
+
     });
 
   });
@@ -874,7 +1035,7 @@ function createServers(ports,cb){
 function registerServices(infos){
   for(var i in infos){
     var ele = infos[i];
-    Client.registerService(ele.serviceName,ele.version,ele.nodeInfo,ele.cb);
+    Client.registerService(ele.serviceName,ele.version,ele.ctlInfo,ele.nodeInfo,ele.cb);
   }
 }
 /*}}}*/

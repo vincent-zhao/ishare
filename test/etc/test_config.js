@@ -3,5 +3,5 @@ module.exports = {
   user: 'test',
   pwd:  'test',
   servicePath : '/serv/a.b.c.d.appname.servicename',
-  localPath : __dirname + '/../tmp'
+  localPath : __dirname + '/../tmp/.cache'
 }

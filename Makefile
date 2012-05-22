@@ -3,7 +3,7 @@ test:
 	@./node_modules/mocha/bin/mocha --reporter tap --ignore-leaks -t 20000 test/test.*.js
 
 clean:
-	@rm test/tmp/*
+	@rm test/tmp/.cache
 
 cov: 
 	@sh build/install.sh

@@ -27,10 +27,11 @@
 
 # 接口
 
-**注册服务：registerService(serviceName,version,serviceInfo,cb);**
+**注册服务：registerService(serviceName,version,ctlInfo,serviceInfo,cb);**
 
 * serviceName:服务名称
 * version:服务版本
+* ctlInfo:控制信息，例如这次和zk的session的超时时间
 * serviceInfo:服务信息对象
 * cb:回调函数，注册完毕回调
 
@@ -40,6 +41,10 @@ example:
 //obj是指向这个服务的一个对象，其有unRegisterService方法可以注销此服务
 registerService('testService','1.0',
   {
+    //tm表示和zk连接的session的超时时间
+    tm:1000,
+  },
+  {
     method:'GET',
     url:'1.1.1.1:80'
   }
@@ -48,7 +53,6 @@ registerService('testService','1.0',
   }
 );
 ```
-
 
 **注销服务：unRegisterService(cb);**
 
@@ -63,11 +67,11 @@ obj.unRegisterService(function(err){
 });
 ```
 
-
-**获取所有服务：getServiceAll(serviceName,filter,cb,w_cb);**
+**获取所有服务：getServiceAll(serviceName,filter,ctlInfo,cb,w_cb);**
 
 * serviceName:服务名称
 * filter:服务筛选条件
+* ctlInfo:控制信息，包括session超时时间和心跳检测函数等,心跳检测函数需要用户传入，具体使用方式在下面例子中说明，如果不指定心跳检测函数，则使用默认检测方式，默认检测方式为向服务发送http请求监听响应来检查。
 * cb:获取服务后的回调函数
 * w_cb:获取服务发生变化后的回调函数(可以设置为false，表示不对变化做相应)
 
@@ -88,6 +92,14 @@ ServiceCenter.getServiceAll('testServiceName',
       max:'2.0'
     },
     room:'ROOM1'
+  },
+  {
+    tm:10000,
+    hbFunc:function(addr,cb){
+      //addr为服务的地址，可能是url或者是其他表示服务地址的字符串
+      //cb为检测好后的回调函数，如果心跳发现服务不可用或者其他意外情况，如下调用回调函数：
+      //cb(err);   err为错误信息。
+    }
   }
   ,function(err,serviceInfos){
     //get serviceInfos after call this function
@@ -98,11 +110,11 @@ ServiceCenter.getServiceAll('testServiceName',
 );
 ```
 
-
-**获取任一服务：getServiceAny(serviceName,filter,cb,w_cb);**
+**获取任一服务：getServiceAny(serviceName,filter,ctlInfo,cb,w_cb);**
 
 * serviceName:服务名称
 * filter:服务筛选条件
+* ctlInfo:和getServiceAll一样
 * cb:获取服务后的回调函数
 * w_cb:获取服务发生变化后的回调函数(可以设置为false，表示不对变化做相应)
 
@@ -116,7 +128,12 @@ var ServiceCenter = require('service-center');
   对象中可以指定筛选条件，例如版本选择和机房选择
   方法获取的是符合条件的所有服务中的一个服务信息
 */
-ServiceCenter.getServiceAny('testServiceName','0'
+ServiceCenter.getServiceAny('testServiceName','0',
+  {
+    tm:10000,
+    //说明如上面getServiceAll
+    hbFunc:function(addr,cb){}
+  }
   ,function(err,serviceInfo){
     //get one serviceInfo after call this function
   }
@@ -136,15 +153,18 @@ $ npm install service-center
 var ServiceCenter = require('service-center');
 //ServiceCenter初始化方式，用来指明zk的地址等，这步很重要
 ServiceCenter.init({
-  addr:'localhost:2181',//zookeeper集群地址，多个地址以"，"分割
+  addr:'localhost:2181',//zookeeper集群地址，多个地址以"，"分割，必填！
   user:'',//用户名，暂时无用，以后会提供全线检查
   pwd:'',//密码，暂时无用，原因同用户名
-  localPath:'',//本地文件保存路径，用于连不上zk时获得service信息
-  root:''//根路径
+  localPath:'',//本地文件保存路径，用于连不上zk时获得service信息，默认__dirname+'/.cache'
+  root:''//根路径，默认/service
+  checkInterval:''//心跳检测间隔，默认500
 });
 ```
-
 其他的接口上述都已介绍。
+
+# 测试
+修改test/test_config目录中的zk地址，然后在根目录下运行make就可以进行单元测试
 
 # 问题
 service-center详细的使用方式可以参考test目录下单元测试，如有问题欢迎和我联系，见下面联系方式。

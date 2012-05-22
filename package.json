@@ -1,12 +1,13 @@
 {
   "name": "service-center",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "author": "Vincent-zhao (zzqvincent@gmail.com)",
   "contributors": [
   ],
   "homepage": "",
   "description": "nodejs client for service coodernation with zookeeper",
   "keywords": ["nodejs","service","zookeeper"],
+  "main":"lib/client",
   "dependencies": {
   },
   "engines": {
