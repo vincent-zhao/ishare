@@ -104,7 +104,7 @@ ServiceCenter.getServiceAll('testServiceName',
   ,function(err,serviceInfos){
     //get serviceInfos after call this function
   }
-  ,function(err){
+  ,function(err,serviceInfos){
     //If one of thoses services is changed,the function is called.
   }
 );
