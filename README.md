@@ -1,6 +1,6 @@
 # 介绍
 
-`service-center`是一个nodejs客户端，其配合zookeeper来提供服务协调的功能。用户可以使用此客户端在zookeeper上方便的注册服务或者获取服务。服务注册注销和服务之间的相互调用变得非常便捷。
+`ishare`是一个nodejs客户端，其配合zookeeper来提供服务协调的功能。用户可以使用此客户端在zookeeper上方便的注册服务或者获取服务。服务注册注销和服务之间的相互调用变得非常便捷。
 
 # 使用场景
 
@@ -11,7 +11,7 @@
 * 服务新版本上线往往无法做到完全平滑。
 * 服务更新版本，重新在一些机器上布置或者以新端口方式提供服务（旧服务不下线可能是因为方便回滚或者作比较等），此时调用此服务的服务方也需要人工干预。
 
-上述四种为常见情况，如果服务很多，相互之间的调用关系复杂，那么上述问题造成的麻烦会以指数级增长，一个失误就会引起线上的故障。怎么办？`service-center`帮你搞定一切。
+上述四种为常见情况，如果服务很多，相互之间的调用关系复杂，那么上述问题造成的麻烦会以指数级增长，一个失误就会引起线上的故障。怎么办？`ishare`帮你搞定一切。
 
 # 功能
 
@@ -78,14 +78,14 @@ obj.unRegisterService(function(err){
 example:
 
 ```javascript
-var ServiceCenter = require('service-center');
+var IShare = require('ishare');
 
 /*
   filter可以是字符串表示某个具体的版本或者是一个对象,设置为0表示获取最新服务
   对象中可以指定筛选条件，例如版本选择和机房选择
   方法获取的是符合条件的所有服务信息
 */
-ServiceCenter.getServiceAll('testServiceName',
+IShare.getServiceAll('testServiceName',
   {
     version:{
       min:'1.0',
@@ -121,14 +121,14 @@ ServiceCenter.getServiceAll('testServiceName',
 example:
 
 ```javascript
-var ServiceCenter = require('service-center');
+var IShare = require('ishare');
 
 /*
   filter可以是字符串表示某个具体的版本或者是一个对象,设置成0表示获取最新服务
   对象中可以指定筛选条件，例如版本选择和机房选择
   方法获取的是符合条件的所有服务中的一个服务信息
 */
-ServiceCenter.getServiceAny('testServiceName','0',
+IShare.getServiceAny('testServiceName','0',
   {
     tm:10000,
     //说明如上面getServiceAll
@@ -145,14 +145,14 @@ ServiceCenter.getServiceAny('testServiceName','0',
 
 # 安装
 ```bash
-$ npm install service-center
+$ npm install ishare 
 ```
 
 # 使用
 ```javascript
-var ServiceCenter = require('service-center');
-//ServiceCenter初始化方式，用来指明zk的地址等，这步很重要
-ServiceCenter.init({
+var IShare = require('ishare');
+//IShare初始化方式，用来指明zk的地址等，这步很重要
+IShare.init({
   addr:'localhost:2181',//zookeeper集群地址，多个地址以"，"分割，必填！
   user:'',//用户名，暂时无用，以后会提供全线检查
   pwd:'',//密码，暂时无用，原因同用户名
@@ -167,7 +167,7 @@ ServiceCenter.init({
 修改test/test_config目录中的zk地址，然后在根目录下运行make就可以进行单元测试
 
 # 问题
-service-center详细的使用方式可以参考test目录下单元测试，如有问题欢迎和我联系，见下面联系方式。
+IShare详细的使用方式可以参考test目录下单元测试，如有问题欢迎和我联系，见下面联系方式。
 
 # 联系方式
 yixuan.zzq@taobao.com / zzqvincent@gmail.com
