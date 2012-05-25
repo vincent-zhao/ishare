@@ -79,6 +79,12 @@ IShare.unRegisterService(function(err){
 });
 ```
 
+**订阅服务：subscribe(serviceName,filter,cb);**
+
+* serviceName : 服务名称
+* filter ：服务筛选条件
+* cb ：订阅动作的回调
+
 **获取所有服务：getServiceAll(serviceName,filter,ctlInfo,cb,w_cb);**
 
 * serviceName:服务名称
