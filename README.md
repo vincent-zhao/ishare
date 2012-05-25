@@ -27,6 +27,19 @@
 
 # 接口
 
+**初始化客户端：init(options);**
+
+* options : 初始化信息，具体定义如下
+
+```javascript
+var options : {
+  address : 'localhost:2181/',//zk地址
+  username : '',//用户名，暂无用
+  password : '',//密码，暂无用
+  cacheFile : '',//本地化文件路径
+}
+```
+
 **注册服务：registerService(serviceName,version,ctlInfo,serviceInfo,cb);**
 
 * serviceName:服务名称
