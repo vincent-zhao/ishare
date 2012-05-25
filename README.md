@@ -89,7 +89,7 @@ IShare.unRegisterService('testService',function(err){
 订阅服务功能：订阅你要选择的服务，如果订阅的服务发生变化，会触发相关事件
 
 * @param {string} serviceName : 服务名称
-* @param {object||string} filter ：服务筛选条件
+* @param {object || string} filter ：服务筛选条件
 * @param {object} hbInfo : 心跳检测设置 
 * @param {function} cb ：订阅动作的回调
 * @return {object} 事件对象，可以监听对象的某些事件，例如：update事件
