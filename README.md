@@ -32,12 +32,16 @@
 * @param {object} options : 初始化信息，具体定义如下
 
 ```javascript
+var IShare = require('ishare');
+
 var options : {
   address : 'localhost:2181/',//zk地址
   username : '',//用户名，暂无用
   password : '',//密码，暂无用
   cacheFile : '',//本地化文件路径
 }
+
+IShare.init(options);
 ```
 
 **注册服务：registerService(serviceName,version,options,serviceAddr,cb);**
