@@ -138,10 +138,11 @@ example:
 ```javascript
 var IShare = require('ishare');
 
-var service = IShare.subscribe('testService','1.0',function(err){});
-
-//services:服务列表
-var services = service.getServiceAll();
+var service = IShare.subscribe('testService','1.0',function(err){
+  //services:服务列表
+  var services = service.getServiceAll();
+  
+});
 
 ```
 
@@ -154,10 +155,11 @@ example:
 ```javascript
 var IShare = require('ishare');
 
-var service = IShare.subscribe('testService','1.0',function(err){});
+var service = IShare.subscribe('testService','1.0',function(err){
+  //one:某服务
+  var one = service.getServiceAny();
 
-//one:某服务
-var one = service.getServiceAny();
+});
 
 ```
 
