@@ -40,28 +40,26 @@ var options : {
 }
 ```
 
-**注册服务：registerService(serviceName,version,ctlInfo,serviceInfo,cb);**
+**注册服务：registerService(serviceName,version,options,serviceAddr,cb);**
 
-* serviceName:服务名称
-* version:服务版本
-* ctlInfo:控制信息，例如这次和zk的session的超时时间
-* serviceInfo:服务信息对象
-* cb:回调函数，注册完毕回调
+* serviceName : 服务名称
+* version : 服务版本号
+* options ：指定注册时需要填写的信息
+* serviceAddr : 服务地址
+* cb : 回调函数，注册完毕回调
 
 example:
 
 ```javascript
-//obj是指向这个服务的一个对象，其有unRegisterService方法可以注销此服务
-registerService('testService','1.0',
+var IShare = require('ishare');
+
+IShare.registerService('testService','1.0',
   {
-    //tm表示和zk连接的session的超时时间
-    tm:1000,
+    room:'CM4',
+    ....
   },
-  {
-    method:'GET',
-    url:'1.1.1.1:80'
-  }
-  ,function(err,obj){
+  'http://1.1.1.1:80',
+  ,function(err){
     if(err) throw new Error(err);
   }
 );
@@ -74,8 +72,9 @@ registerService('testService','1.0',
 example:
 
 ```javascript
-//obj是registerService回调中的参数
-obj.unRegisterService(function(err){
+var IShare = require('ishare');
+
+IShare.unRegisterService(function(err){
   if(err) throw new Error(err);
 });
 ```
