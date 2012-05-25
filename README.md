@@ -151,21 +151,6 @@ var one = service.getServiceAny();
 $ npm install ishare 
 ```
 
-# 使用
-```javascript
-var IShare = require('ishare');
-//IShare初始化方式，用来指明zk的地址等，这步很重要
-IShare.init({
-  addr:'localhost:2181',//zookeeper集群地址，多个地址以"，"分割，必填！
-  user:'',//用户名，暂时无用，以后会提供全线检查
-  pwd:'',//密码，暂时无用，原因同用户名
-  localPath:'',//本地文件保存路径，用于连不上zk时获得service信息，默认__dirname+'/.cache'
-  root:''//根路径，默认/service
-  checkInterval:''//心跳检测间隔，默认500
-});
-```
-其他的接口上述都已介绍。
-
 # 测试
 修改test/test_config目录中的zk地址，然后在根目录下运行make就可以进行单元测试
 
