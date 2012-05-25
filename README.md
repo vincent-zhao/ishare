@@ -85,10 +85,12 @@ IShare.unRegisterService('testService',function(err){
 ```
 
 **订阅服务：subscribe(serviceName,filter,cb);**
-订阅服务功能：订阅你要选择的服务，如果订阅的服务发生变化，会激发相关事件
+
+订阅服务功能：订阅你要选择的服务，如果订阅的服务发生变化，会触发相关事件
 
 * @param {string} serviceName : 服务名称
 * @param {object||string} filter ：服务筛选条件
+* @param {object} hbInfo : 心跳检测设置 
 * @param {function} cb ：订阅动作的回调
 * @return {object} 事件对象，可以监听对象的某些事件，例如：update事件
 
@@ -106,6 +108,14 @@ var service = IShare.subscribe('testService',
   {
     version:{min:'1.0'}
   },
+  {
+    checkInterval : 2000, //心跳检查间隔时间
+    hbFunc : function(addr,cb){
+      //addr是需要检查的服务的地址，cb是检查完毕后的回调函数
+      //如果心跳检测不正常，以cb(message)方式调用cb
+      //如果一切正常，以cb()方式调用cb
+    }
+  }
   function(err){
     if(err) throw new Error(err);
   }
@@ -118,6 +128,7 @@ service.on('update',function(serviceList){
 ```
 
 **获取所有服务：getServiceAll(serviceName);**
+
 getServiceAll是上述subscribe方法返回对象的一个方法，用来获取订阅服务的所有服务列表
 
 * @return {array[string]} 服务信息列表 
