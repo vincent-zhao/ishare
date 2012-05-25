@@ -48,7 +48,7 @@ IShare.init(options);
 
 * @param {string} serviceName : 服务名称
 * @param {string} version : 服务版本号
-* @param {objet} options ：指定注册时需要填写的信息
+* @param {object} options ：指定注册时需要填写的信息
 * @param {string} serviceAddr : 服务地址
 * @param {function} cb : 回调函数，注册完毕回调
 
@@ -84,7 +84,7 @@ IShare.unRegisterService('testService',function(err){
 });
 ```
 
-**订阅服务：subscribe(serviceName,filter,cb);**
+**订阅服务：subscribe(serviceName,filter,hbInfo,cb);**
 
 订阅服务功能：订阅你要选择的服务，如果订阅的服务发生变化，会触发相关事件
 
@@ -127,7 +127,7 @@ service.on('update',function(serviceList){
 
 ```
 
-**获取所有服务：getServiceAll(serviceName);**
+**获取所有服务：getServiceAll();**
 
 getServiceAll是上述subscribe方法返回对象的一个方法，用来获取订阅服务的所有服务列表
 
