@@ -29,7 +29,7 @@
 
 **初始化客户端：init(options);**
 
-* options : 初始化信息，具体定义如下
+* @param {object} options : 初始化信息，具体定义如下
 
 ```javascript
 var options : {
@@ -42,11 +42,11 @@ var options : {
 
 **注册服务：registerService(serviceName,version,options,serviceAddr,cb);**
 
-* serviceName : 服务名称
-* version : 服务版本号
-* options ：指定注册时需要填写的信息
-* serviceAddr : 服务地址
-* cb : 回调函数，注册完毕回调
+* @param {string} serviceName : 服务名称
+* @param {string} version : 服务版本号
+* @param {objet} options ：指定注册时需要填写的信息
+* @param {string} serviceAddr : 服务地址
+* @param {function} cb : 回调函数，注册完毕回调
 
 example:
 
@@ -65,33 +65,28 @@ IShare.registerService('testService','1.0',
 );
 ```
 
-**注销服务：unRegisterService(cb);**
+**注销服务：unRegisterService(serviceName,cb);**
 
-* cb:注销动作后的回调函数
+* @param {string} serviceName 服务名称
+* @param {function} cb 注销动作的回调函数
 
 example:
 
 ```javascript
 var IShare = require('ishare');
 
-IShare.unRegisterService(function(err){
+IShare.unRegisterService('testService',function(err){
   if(err) throw new Error(err);
 });
 ```
 
 **订阅服务：subscribe(serviceName,filter,cb);**
+订阅服务功能：订阅你要选择的服务，如果订阅的服务发生变化，会激发相关事件
 
-* serviceName : 服务名称
-* filter ：服务筛选条件
-* cb ：订阅动作的回调
-
-**获取所有服务：getServiceAll(serviceName,filter,ctlInfo,cb,w_cb);**
-
-* serviceName:服务名称
-* filter:服务筛选条件
-* ctlInfo:控制信息，包括session超时时间和心跳检测函数等,心跳检测函数需要用户传入，具体使用方式在下面例子中说明，如果不指定心跳检测函数，则使用默认检测方式，默认检测方式为向服务发送http请求监听响应来检查。
-* cb:获取服务后的回调函数
-* w_cb:获取服务发生变化后的回调函数(可以设置为false，表示不对变化做相应)
+* @param {string} serviceName : 服务名称
+* @param {object||string} filter ：服务筛选条件
+* @param {function} cb ：订阅动作的回调
+* @return {object} 事件对象，可以监听对象的某些事件，例如：update事件
 
 example:
 
@@ -103,62 +98,52 @@ var IShare = require('ishare');
   对象中可以指定筛选条件，例如版本选择和机房选择
   方法获取的是符合条件的所有服务信息
 */
-IShare.getServiceAll('testServiceName',
+var service = IShare.subscribe('testService',
   {
-    version:{
-      min:'1.0',
-      max:'2.0'
-    },
-    room:'ROOM1'
+    version:{min:'1.0'}
   },
-  {
-    tm:10000,
-    hbFunc:function(addr,cb){
-      //addr为服务的地址，可能是url或者是其他表示服务地址的字符串
-      //cb为检测好后的回调函数，如果心跳发现服务不可用或者其他意外情况，如下调用回调函数：
-      //cb(err);   err为错误信息。
-    }
-  }
-  ,function(err,serviceInfos){
-    //get serviceInfos after call this function
-  }
-  ,function(err,serviceInfos){
-    //If one of thoses services is changed,the function is called.
+  function(err){
+    if(err) throw new Error(err);
   }
 );
+
+service.on('update',function(serviceList){
+  //do something useful
+});
+
 ```
 
-**获取任一服务：getServiceAny(serviceName,filter,ctlInfo,cb,w_cb);**
+**获取所有服务：getServiceAll(serviceName);**
+getServiceAll是上述subscribe方法返回对象的一个方法，用来获取订阅服务的所有服务列表
 
-* serviceName:服务名称
-* filter:服务筛选条件
-* ctlInfo:和getServiceAll一样
-* cb:获取服务后的回调函数
-* w_cb:获取服务发生变化后的回调函数(可以设置为false，表示不对变化做相应)
+* @return {array[string]} 服务信息列表 
 
 example:
 
 ```javascript
 var IShare = require('ishare');
 
-/*
-  filter可以是字符串表示某个具体的版本或者是一个对象,设置成0表示获取最新服务
-  对象中可以指定筛选条件，例如版本选择和机房选择
-  方法获取的是符合条件的所有服务中的一个服务信息
-*/
-IShare.getServiceAny('testServiceName','0',
-  {
-    tm:10000,
-    //说明如上面getServiceAll
-    hbFunc:function(addr,cb){}
-  }
-  ,function(err,serviceInfo){
-    //get one serviceInfo after call this function
-  }
-  ,function(err){
-    //If this service is changed,the function is called.
-  }
-);
+var service = IShare.subscribe('testService','1.0',function(err){});
+
+//services:服务列表
+var services = service.getServiceAll();
+
+```
+
+**获取任一服务：getServiceAny();**
+
+* @return {string} 服务信息列表
+
+example:
+
+```javascript
+var IShare = require('ishare');
+
+var service = IShare.subscribe('testService','1.0',function(err){});
+
+//one:某服务
+var one = service.getServiceAny();
+
 ```
 
 # 安装
