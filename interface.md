@@ -1,3 +1,4 @@
+```javascript
 exports.createClient = function(options){
 
   /**
@@ -81,3 +82,4 @@ exports.createClient = function(options){
   return _me;
 
 }
+```
