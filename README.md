@@ -26,146 +26,21 @@
 * 版本控制：版本节点自动添加
 
 # 接口
-
-**初始化客户端：init(options);**
-
-* @param {object} options : 初始化信息，具体定义如下
-
-```javascript
-var IShare = require('ishare');
-
-var options : {
-  address : 'localhost:2181/',//zk地址
-  username : '',//用户名，暂无用
-  password : '',//密码，暂无用
-  cacheFile : '',//本地化文件路径
-}
-
-IShare.init(options);
-```
-
-**注册服务：registerService(serviceName,version,options,serviceAddr,cb);**
-
-* @param {string} serviceName : 服务名称
-* @param {string} version : 服务版本号
-* @param {object} options ：指定注册时需要填写的信息
-* @param {string} serviceAddr : 服务地址
-* @param {function} cb : 回调函数，注册完毕回调
-
-example:
-
-```javascript
-var IShare = require('ishare');
-
-IShare.registerService('testService','1.0',
-  {
-    room:'CM4',
-    ....
-  },
-  'http://1.1.1.1:80',
-  ,function(err){
-    if(err) throw new Error(err);
-  }
-);
-```
-
-**注销服务：unRegisterService(serviceName,cb);**
-
-* @param {string} serviceName 服务名称
-* @param {function} cb 注销动作的回调函数
-
-example:
-
-```javascript
-var IShare = require('ishare');
-
-IShare.unRegisterService('testService',function(err){
-  if(err) throw new Error(err);
-});
-```
-
-**订阅服务：subscribe(serviceName,filter,hbInfo,cb);**
-
-订阅服务功能：订阅你要选择的服务，如果订阅的服务发生变化，会触发相关事件
-
-* @param {string} serviceName : 服务名称
-* @param {object || string} filter ：服务筛选条件
-* @param {object} hbInfo : 心跳检测设置 
-* @param {function} cb ：订阅动作的回调
-* @return {object} 事件对象，可以监听对象的某些事件，例如：update事件
-
-example:
-
-```javascript
-var IShare = require('ishare');
-
-/*
-  filter可以是字符串表示某个具体的版本或者是一个对象,设置为0表示获取最新服务
-  对象中可以指定筛选条件，例如版本选择和机房选择
-  方法获取的是符合条件的所有服务信息
-*/
-var service = IShare.subscribe('testService',
-  {
-    version:{min:'1.0'}
-  },
-  {
-    checkInterval : 2000, //心跳检查间隔时间
-    hbFunc : function(addr,cb){
-      //addr是需要检查的服务的地址，cb是检查完毕后的回调函数
-      //如果心跳检测不正常，以cb(message)方式调用cb
-      //如果一切正常，以cb()方式调用cb
-    }
-  }
-  function(err){
-    if(err) throw new Error(err);
-  }
-);
-
-service.on('update',function(serviceList){
-  //do something useful
-});
-
-```
-
-**获取所有服务：getServiceAll();**
-
-getServiceAll是上述subscribe方法返回对象的一个方法，用来获取订阅服务的所有服务列表
-
-* @return {array[string]} 服务信息列表 
-
-example:
-
-```javascript
-var IShare = require('ishare');
-
-var service = IShare.subscribe('testService','1.0',function(err){
-  //services:服务列表
-  var services = service.getServiceAll();
-  
-});
-
-```
-
-**获取任一服务：getServiceAny();**
-
-* @return {string} 服务信息列表
-
-example:
-
-```javascript
-var IShare = require('ishare');
-
-var service = IShare.subscribe('testService','1.0',function(err){
-  //one:某服务
-  var one = service.getServiceAny();
-
-});
-
-```
+见interface.md文件
 
 # 安装
 ```bash
 $ npm install ishare 
+```
+
+# 使用
+```javascript
+var iShare = require('ishare').createClient({
+  zookeeper:'',//zk地址
+  username:'',//用户名（暂无用）
+  password:'',//密码（暂无用）
+  cachepath:''//本地化文件路径
+});
 ```
 
 # 测试
