@@ -324,6 +324,7 @@ describe('iShare test',function(){
       it('test subscribe ok',function(done){
         var caseEmitter = new EventEmitter();
 
+        //normal filter
         var serv = iShare.subscribe(serviceNode,'2.0',function(err){
           if(err){
             throw new Error(err);
@@ -333,7 +334,8 @@ describe('iShare test',function(){
         });
 
         caseEmitter.on('continue',function(){
-          var count = 5;
+          var count = 7;
+          //recent version
           var serv2 = iShare.subscribe(serviceNode,'0',function(err){
             if(err){
               throw new Error(err);
@@ -344,6 +346,7 @@ describe('iShare test',function(){
             }
           });
 
+          //filter is an object
           var serv3 = iShare.subscribe(serviceNode,{version:'1.0'},function(err){
             if(err){
               throw new Error(err);
@@ -354,6 +357,7 @@ describe('iShare test',function(){
             }
           });
 
+          //filter is an object and recent version
           var serv4 = iShare.subscribe(serviceNode,{version:'0'},function(err){
             if(err){
               throw new Error(err);
@@ -364,6 +368,7 @@ describe('iShare test',function(){
             }
           });
 
+          //filter is an object and set min
           var serv5 = iShare.subscribe(serviceNode,{version:{min:'2.0'}},function(err){
             if(err){
               throw new Error(err);
@@ -374,6 +379,7 @@ describe('iShare test',function(){
             }
           });
 
+          //filter is an object and set min and no such big version
           var serv6 = iShare.subscribe(serviceNode,{version:{min:'7.0'}},function(err){
             if(err){
               throw new Error(err);
@@ -381,6 +387,27 @@ describe('iShare test',function(){
             serv6.getServiceAll().length.should.eql(0);
             if(--count === 0){
               done();
+            }
+          });
+
+          //filter is an object and version is undefined and set room
+          var serv7 = iShare.subscribe(serviceNode,{room:'CM4'},function(err){
+            if(err){
+              throw new Error(err);
+            }
+            serv7.getServiceAll().length.should.eql(2);
+            if(--count === 0){
+              done();
+            }
+          });
+
+          //filter is wrong type
+          var servr8 = iShare.subscribe(serviceNode,1,function(err){
+            if(err){
+              err.name.should.eql('FILTER_WRONG');
+              if(--count === 0){
+                done();
+              }
             }
           });
 

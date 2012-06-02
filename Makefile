@@ -1,4 +1,5 @@
 test:
+	-mkdir test/tmp
 	@sh build/install.sh
 	@./node_modules/mocha/bin/mocha --reporter tap --ignore-leaks -t 20000 test/test.*.js
 
