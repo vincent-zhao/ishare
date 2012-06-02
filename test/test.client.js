@@ -654,12 +654,6 @@ describe('iShare test',function(){
           }
           //get cache content
           serv.getServiceAll().length.should.eql(2);
-          //listen for list update
-          serv.on('update',function(nodes){
-            nodes.length.should.eql(3);
-            done();
-          });
-
           //set back to normal config
           iShare.setConfig({
             zookeeper : testConf.zookeeper,
@@ -667,6 +661,8 @@ describe('iShare test',function(){
             password : '',
             cachepath : testConf.cachepath
           });
+
+          done();
         });
       });
       /*}}}*/
