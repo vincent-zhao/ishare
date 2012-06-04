@@ -1,6 +1,4 @@
-test:
-	-mkdir test/tmp
-	@sh build/install.sh
+test: 
 	@./node_modules/mocha/bin/mocha --reporter tap --ignore-leaks -t 20000 test/test.*.js
 
 clean:
@@ -12,5 +10,9 @@ cov:
 	-jscoverage lib_for_cov_bak lib
 	-./node_modules/mocha/bin/mocha --reporter html-cov --ignore-leaks -t 20000 test/test.*.js > coverage.html
 	@rm -fr lib && mv lib_for_cov_bak lib 
+
+install:
+	-mkdir test/tmp
+	@sh build/install.sh
 
 .PHONY: test
