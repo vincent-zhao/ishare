@@ -1,6 +1,6 @@
 {
   "name": "ishare",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "author": "Vincent-zhao (zzqvincent@gmail.com)",
   "contributors": [
   ],
@@ -12,7 +12,7 @@
     "light-node-zookeeper" : ">=0.1.0"
   },
   "engines": {
-    "node": ">=0.6.17"
+    "node": ">=0.6.11"
   },
   "devDependencies": {
     "should"    : ">=0.4.2",
