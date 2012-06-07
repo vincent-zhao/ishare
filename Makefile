@@ -4,8 +4,7 @@ test:
 clean:
 	@rm -rf test/tmp/.cache*
 
-cov: 
-	@sh build/install.sh
+cov: rebuild
 	@mv lib lib_for_cov_bak
 	-jscoverage lib_for_cov_bak lib
 	-./node_modules/mocha/bin/mocha --reporter html-cov --ignore-leaks -t 20000 test/test.*.js > coverage.html
@@ -13,6 +12,9 @@ cov:
 
 install:
 	-mkdir test/tmp
-	@sh build/install.sh
+	@mv node_modules/light-node-zookeeper node_modules/zookeeper
+
+rebuild:
+	@npm install
 
 .PHONY: test

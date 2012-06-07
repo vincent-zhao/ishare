@@ -1,6 +1,6 @@
 {
   "name": "ishare",
-  "version": "0.1.5",
+  "version": "0.1.13",
   "author": "Vincent-zhao (zzqvincent@gmail.com)",
   "contributors": [
   ],
@@ -9,6 +9,7 @@
   "keywords": ["nodejs","service","zookeeper"],
   "main":"lib/client",
   "dependencies": {
+    "light-node-zookeeper" : ">=0.1.0"
   },
   "engines": {
     "node": ">=0.6.17"
@@ -18,6 +19,6 @@
     "mocha"     : ">=0.9.0"
   },
   "scripts": {
-    "install": "make install"
+    "install"   : "make install"
   }
 }
