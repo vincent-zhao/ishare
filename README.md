@@ -33,6 +33,11 @@
 $ npm install ishare 
 ```
 
+然后进入ishare安装目录，运行：
+```bash
+npm install
+```
+
 # 使用
 ```javascript
 var iShare = require('ishare').createClient({
