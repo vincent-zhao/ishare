@@ -1,6 +1,10 @@
 {
   "name": "ishare",
+<<<<<<< HEAD
   "version": "0.1.15",
+=======
+  "version": "0.1.14",
+>>>>>>> 8e7435e2193137940cdaa3e78a6327f40d152959
   "author": "Vincent-zhao (zzqvincent@gmail.com)",
   "contributors": [
   ],
