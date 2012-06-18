@@ -35,31 +35,44 @@ describe('iShare test',function(){
               throw new Error('something wrong in before');
             }
 
-            //init node testService
-            initNode('/'+CONSTANTS.SERVICE_ROOT+'/'+serviceNode,function(err){
+            initNode('/'+CONSTANTS.APP_ROOT,function(err){
               if(err){
                 throw new Error('something wrong in before');
               }
 
-              var count = 2;
-              //init node version1.0
-              initNode('/'+CONSTANTS.SERVICE_ROOT+'/'+serviceNode+'/1.0',function(err){
+              //init node testService
+              initNode('/'+CONSTANTS.SERVICE_ROOT+'/'+serviceNode,function(err){
                 if(err){
-                  throw new Error('something wrong in before(version node)');
+                  throw new Error('something wrong in before');
                 }
-                if(--count == 0){
-                  done();
-                }
+
+                initNode('/'+CONSTANTS.APP_ROOT+'/'+serviceNode,function(err){
+                  if(err){
+                    throw new Error('something wrong in before');
+                  }
+
+                  var count = 2;
+                  //init node version1.0
+                  initNode('/'+CONSTANTS.SERVICE_ROOT+'/'+serviceNode+'/1.0',function(err){
+                    if(err){
+                      throw new Error('something wrong in before(version node)');
+                    }
+                    if(--count == 0){
+                      done();
+                    }
+                  });
+                  //init node version2.0
+                  initNode('/'+CONSTANTS.SERVICE_ROOT+'/'+serviceNode+'/2.0',function(err){
+                    if(err){
+                      throw new Error('something wrong in before(version node)');
+                    }
+                    if(--count == 0){
+                      done();
+                    }
+                  });
+                });
               });
-              //init node version2.0
-              initNode('/'+CONSTANTS.SERVICE_ROOT+'/'+serviceNode+'/2.0',function(err){
-                if(err){
-                  throw new Error('something wrong in before(version node)');
-                }
-                if(--count == 0){
-                  done();
-                }
-              });
+
             });
           });
         },true);
@@ -83,7 +96,7 @@ describe('iShare test',function(){
 
   describe('interface test',function(){
 
-    describe('register and unregister test',function(){
+    describe('register and unregister test', function(){
 
       /*{{{ afterEach */
       afterEach(function(done){
@@ -245,7 +258,7 @@ describe('iShare test',function(){
 
     });
 
-    describe('subscribe and getService test',function(){
+    describe('subscribe and getService test', function(){
 
       /*{{{ beforeEach */
       beforeEach(function(done){
@@ -402,7 +415,7 @@ describe('iShare test',function(){
           });
 
           //filter is wrong type
-          var servr8 = iShare.subscribe(serviceNode,1,function(err){
+          var serv8 = iShare.subscribe(serviceNode,1,function(err){
             if(err){
               err.name.should.eql('FILTER_WRONG');
               if(--count === 0){
@@ -508,9 +521,11 @@ describe('iShare test',function(){
                   }).listen('9222');
                 }else if(step === 1){
                   nodes.length.should.eql(4);
-                  server.close();
                   step++;
-                  done();
+                  iShare.unRegisterService(regId,function(err){
+                    server.close();
+                    done();
+                  });
                 }
               });
 
@@ -524,7 +539,7 @@ describe('iShare test',function(){
 
       /*{{{ test heartbeat set ok */
       it('test heartbeat set ok',function(done){
-
+        var regId;
         var server = http.createServer(function(req,res){
           res.end('ok');
         }).listen('9222',function(){
@@ -565,22 +580,24 @@ describe('iShare test',function(){
                   }).listen('9222');
                 }else if(step === 1){
                   nodes.length.should.eql(4);
-                  server.close();
                   step++;
-                  done();
+                  iShare.unRegisterService(regId,function(err){
+                    server.close();
+                    done();
+                  });
                 }
               });
 
             }
           };
-          iShare.registerService(info.name,info.version,info.addr,info.meta,info.callback);
+          regId = iShare.registerService(info.name,info.version,info.addr,info.meta,info.callback);
         });
 
       });
       /*}}}*/
 
-      /*{{{ test write cache ok*/
-      it('test write cache ok',function(done){
+      /*{{{ test write service cache ok*/
+      it('test write service cache ok',function(done){
         try{
           var splits = testConf.cachepath.split('/');
           var prefix = splits.pop();
@@ -601,21 +618,22 @@ describe('iShare test',function(){
           }
           serv.getServiceAll().length.should.eql(3);
 
-          var get = JSON.parse(fs.readFileSync(testConf.cachepath+process.pid));
+          var get = JSON.parse(fs.readFileSync(testConf.cachepath + CONSTANTS.SEP + process.pid));
           var key = JSON.stringify({name:serviceNode,filter:'2.0'});
-          get[key].length.should.eql(3);
+          get['service'][key].length.should.eql(3);
           done();
         });
       });
       /*}}}*/
 
-      /*{{{ test read cache and zk recover later ok */
-      it('test read cache and zk recover later ok',function(done){
+      /*{{{ test read service cache and zk recover later ok */
+      it('test read service cache and zk recover later ok',function(done){
+        var step = 0;
         try{
           var splits = testConf.cachepath.split('/');
           var prefix = splits.pop();
           var dir    = splits.join('/');
-          var pattern = new RegExp('^'+prefix,'i');
+          var pattern = new RegExp('^' + prefix + CONSTANTS.SEP, 'i');
 
           var get = fs.readdirSync(dir);
           for(var i = 0;i<get.length;i++){
@@ -627,14 +645,14 @@ describe('iShare test',function(){
         //write fake cache file
         var key = JSON.stringify({name:serviceNode,filter:'2.0'});
         var content = [{addr:'http://127.0.0.1:9115',meta:{}}];
-        var cache = {};
-        cache[key] = content;
-        fs.writeFileSync(testConf.cachepath+'1',JSON.stringify(cache));
+        var cache = {'service':{},'app':{}};
+        cache['service'][key] = content;
+        fs.writeFileSync(testConf.cachepath+CONSTANTS.SEP+'1',JSON.stringify(cache));
 
         content = [{addr:'http://127.0.0.1:9116',meta:{}}];
-        var cache2 = {};
-        cache2[key] = content;
-        fs.writeFileSync(testConf.cachepath+'2',JSON.stringify(cache2));
+        var cache2 = {'service':{},'app':{}};
+        cache2['service'][key] = content;
+        fs.writeFileSync(testConf.cachepath+CONSTANTS.SEP+'2',JSON.stringify(cache2));
 
         var splits = testConf.zookeeper.split(':');
         splits.pop();
@@ -653,7 +671,9 @@ describe('iShare test',function(){
             throw new Error(err);
           }
           //get cache content
+          if(step !== 0){return;}
           serv.getServiceAll().length.should.eql(2);
+          step++;
           //set back to normal config
           iShare.setConfig({
             zookeeper : testConf.zookeeper,
@@ -707,6 +727,282 @@ describe('iShare test',function(){
 
     });
 
+    describe('get set and delete node test', function(){
+      
+      /*{{{ beforeEach()*/
+      beforeEach(function(done){
+        var content = "test info";
+        initNode('/' + CONSTANTS.APP_ROOT + '/' + serviceNode + '/testnode1', function(err){
+          if(err){
+            throw err;
+          }else{
+            done();
+          }
+        }, JSON.stringify(content));
+      });
+      /*}}}*/
+
+      /*{{{ afterEach()*/
+      afterEach(function(done){
+        iShare.recover();
+        deleteNode('/' + CONSTANTS.APP_ROOT + '/' + serviceNode + '/testnode1', function(err){
+          done();
+        });
+      });
+      /*}}}*/
+
+      /*{{{ test set and get app node ok*/
+      it('test set app node ok', function (done) {
+        var setPath = serviceNode + '/testnode2';
+        var testContent = 'i am test info';
+
+        iShare.set(setPath, testContent, function(err){
+          if(err){
+            throw err;
+            return;
+          }
+
+          iShare.get(setPath, function(err, version, data){
+            if(err){
+              throw err;
+              return;
+            }
+            data.should.eql(testContent);
+            deleteNode('/'+CONSTANTS.APP_ROOT+'/'+setPath, function(){
+              done();
+            });
+          });
+
+        });
+      });
+      /*}}}*/
+
+      /*{{{ test delete app node ok*/
+      it('test delete app node ok', function(done){
+        var setPath = serviceNode + '/testnode1';
+        iShare.get(setPath, function(err, version, data){
+          if(err){
+            throw err;
+            return;
+          }
+          data.should.eql('test info');
+          iShare.del(setPath, version, function(err){
+            if(err){
+              throw err;
+              return;
+            }
+            zk.a_get('/' + CONSTANTS.APP_ROOT + '/' + setPath, false, function(rc, error, stat, data){
+              if(error === 'no node'){
+                done();
+              }
+            });
+          });
+        });
+      });
+      /*}}}*/
+
+      /*{{{ test get for update and delete and create again event ok*/
+      //get->update->delete->create
+      it('test get for update and delete and create again event ok', function(done){
+        var updateStep = 0;
+        var setPath = serviceNode + '/testnode1';
+        var getEvent = iShare.get(setPath, function(err, version, data){
+          if(err){
+            throw err;
+            return;
+          }
+          data.should.eql('test info');
+          iShare.set(setPath, 'new test info', function(err){
+            if(err){
+              throw err;
+            }
+          });
+        });
+
+        getEvent.on('update', function(version, data){
+          if(updateStep === 0){
+            updateStep ++;
+            data.should.eql('new test info');
+            version.should.eql(1);
+            iShare.del(setPath, version, function(err){
+              if(err) throw err;
+            });
+          }else if(updateStep === 1){
+            updateStep ++;
+            data.should.eql('new test info2');
+            done();
+          }
+        });
+
+        getEvent.on('delete', function(){
+          zk.a_get('/' + CONSTANTS.APP_ROOT + '/' + setPath, false, function(rc, error, stat, data){
+            if(error === 'no node'){
+              if(updateStep === 1){
+                iShare.set(setPath, 'new test info2', function(err){
+                  if(err){
+                    throw err;
+                  }
+                });
+              }
+            }
+          });
+        });
+
+      });
+      /*}}}*/
+
+      /*{{{ test get for create event ok(there is an interval between get and create)*/
+      it('test get for create event ok(there is an interval between get and create)', function(done){
+        var nodePath = serviceNode + '/testnode3';
+        var getEvent = iShare.get(nodePath, function(err, version, data){
+          throw new Error('should not happen');
+        });
+
+        getEvent.on('update', function(version, data){
+          version.should.eql(0);
+          data.should.eql('new test info');
+          deleteNode('/'+CONSTANTS.APP_ROOT+'/'+nodePath,function(err){
+            if(err){
+              throw err;
+              return;
+            }
+            getEvent.removeAllListeners();
+            done();
+          });
+        });
+
+        setTimeout(function(){
+          iShare.set(nodePath, 'new test info', function(err){
+            if(err){
+              throw err;
+            }
+          });
+        },2000);
+
+      });
+      /*}}}*/
+
+      /*{{{ test get for create event ok(get and set at once)*/
+      it('test get for create event ok(get and set at once)', function(done){
+        var nodePath = serviceNode + '/testnode3';
+        var getEvent = iShare.get(nodePath, function(err, version, data){
+          throw new Error('should not happen');
+        });
+
+        getEvent.on('update', function(version, data){
+          version.should.eql(0);
+          data.should.eql('new test info');
+          deleteNode('/'+CONSTANTS.APP_ROOT+'/'+nodePath,function(err){
+            if(err){
+              throw err;
+              return;
+            }
+            done();
+          });
+        });
+
+        iShare.set(nodePath, 'new test info', function(err){
+          if(err){
+            throw err;
+          }
+        });
+
+      });
+      /*}}}*/
+
+      /*{{{ test write app cache ok*/
+      it('test write app cache ok', function(done){
+        var step = 0;
+        try{
+          var splits = testConf.cachepath.split('/');
+          var prefix = splits.pop();
+          var dir    = splits.join('/');
+          var pattern = new RegExp('^'+prefix,'i');
+
+          var get = fs.readdirSync(dir);
+          for(var i = 0;i<get.length;i++){
+            if(pattern.test(get[i])){
+              fs.unlinkSync(dir+'/'+get[i]);
+            }
+          }
+        }catch(e){}
+
+        var setPath = serviceNode + '/testnode1';
+        var getEvent = iShare.get(setPath, function(err, version, data){
+          var get = JSON.parse(fs.readFileSync(testConf.cachepath + CONSTANTS.SEP + process.pid));
+          iShare.set(setPath, 'abcdefg', function(err){});
+        });
+
+        getEvent.on('update', function(version, data){
+          var get = JSON.parse(fs.readFileSync(testConf.cachepath + CONSTANTS.SEP + process.pid));
+          zk.a_delete_('/'+CONSTANTS.APP_ROOT+'/'+setPath,1,function(err){
+            if(step === 0){
+              done();
+            }
+            step++;
+          });
+        });
+
+      });
+      /*}}}*/
+
+      /*{{{ test read app cache and zk recover later ok*/
+      it('test read app cache and zk recover later ok', function(done){
+        try{
+          var splits = testConf.cachepath.split('/');
+          var prefix = splits.pop();
+          var dir    = splits.join('/');
+          var pattern = new RegExp('^'+prefix,'i');
+
+          var get = fs.readdirSync(dir);
+          for(var i = 0;i<get.length;i++){
+            if(pattern.test(get[i])){
+              fs.unlinkSync(dir+'/'+get[i]);
+            }
+          }
+        }catch(e){}
+
+        var path = serviceNode + '/testnode1';
+        var cache = {'service':{},'app':{}};
+        cache['app'][path] = {version:4,data:'older data'};
+        fs.writeFileSync(testConf.cachepath+CONSTANTS.SEP+'1',JSON.stringify(cache));
+
+        cache = {'service':{},'app':{}};
+        cache['app'][path] = {version:5,data:'old data'};
+        fs.writeFileSync(testConf.cachepath+CONSTANTS.SEP+'2',JSON.stringify(cache));
+
+        var splits = testConf.zookeeper.split(':');
+        splits.pop();
+        splits.push('2188/');
+        var fake = splits.join(':');
+        //set useless config
+        iShare.setConfig({
+          zookeeper : fake,
+          username : '',
+          password : '',
+          cachepath : testConf.cachepath
+        });
+
+        iShare.get(path, function(err, version, data){
+          version.should.eql(5);
+          data.should.eql('old data');
+          //set back to normal config
+          iShare.setConfig({
+            zookeeper : testConf.zookeeper,
+            username : '',
+            password : '',
+            cachepath : testConf.cachepath
+          });
+          done();
+        });
+
+
+
+      });
+      /*}}}*/
+
+    });
+
   });
 
 });
@@ -734,7 +1030,7 @@ function initNode(path,cb,info){
   }
   zk.a_create(path,content,0,function(rc,error,path){
     if(rc != 0){
-      cb('wrong in initNode');
+      cb(error);
     }else{
       cb();
     }
@@ -747,23 +1043,35 @@ function recoverZKTree(cb,ignore){
   //delete version node
   deleteNode('/'+CONSTANTS.SERVICE_ROOT+'/'+serviceNode+'/1.0',function(err){
     if(err && !ignore){
-      throw new Error('something wrong in after');
+      throw new Error('something wrong in after1');
     }
     deleteNode('/'+CONSTANTS.SERVICE_ROOT+'/'+serviceNode+'/2.0',function(err){
       if(err && !ignore){
-        throw new Error('something wrong in after');
+        throw new Error('something wrong in after2');
       }else{
         //delete certain service node
         deleteNode('/'+CONSTANTS.SERVICE_ROOT+'/'+serviceNode,function(err){
           if(err && !ignore){
-            throw new Error('something wrong in after');
+            throw new Error('something wrong in after3');
           }
           //delete service node
           deleteNode('/'+CONSTANTS.SERVICE_ROOT,function(err){
             if(err && !ignore){
-              throw new Error('something wrong in after');
+              throw new Error('something wrong in after4');
             }
-            cb();
+
+            deleteNode('/'+CONSTANTS.APP_ROOT+'/'+serviceNode,function(err){
+              if(err && !ignore){
+                throw new Error('something wrong in after5');
+              }
+
+              deleteNode('/'+CONSTANTS.APP_ROOT,function(err){
+                if(err && !ignore){
+                  throw new Error('something wrong in after6');
+                }
+                cb();
+              });
+            });
           });
         });
       }

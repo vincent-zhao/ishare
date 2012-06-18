@@ -79,7 +79,32 @@ exports.createClient = function(options){
   _me.unsubscribe   = function (name) {
   };
 
-  return _me;
+  /**
+   * 设置共享资源
+   */
+  _me.set = function (path, content, callback) {
+  
+  }
+
+  /**
+   * 获取共享资源
+   * 方法返回一个事件对象，可以监听在下列事件上：
+   * update：数据更新
+   * delete：数据删除
+   */
+   _me.get = function (path, callback){
+   
+   }
+
+   /**
+    * 删除共享节点
+    * @version： 需要提供版本号，版本号在get方法中的callback中获取
+    */
+   _me.del = function (path, version, callback){
+   
+   }
+
+   return _me;
 
 }
 ```
