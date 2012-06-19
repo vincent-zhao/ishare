@@ -537,6 +537,63 @@ describe('iShare test',function(){
       });
       /*}}}*/
 
+      /*{{{ test default heartbeat with wrong code ok */
+      it('test default heartbeat with wrong code ok',function(done){
+        var obj = {code:200};
+        var regId;
+        var server = http.createServer(function(req,res){
+          res.end('ok');
+        }).listen('9222',function(){
+          var step = 0;
+          var info = {
+            name : serviceNode,
+            version : '2.0',
+            addr : 'http://127.0.0.1:9222',
+            callback : function(err){
+              if(err){
+                throw new Error(err);
+              }
+
+              var serv = iShare.subscribe(serviceNode,'2.0',function(err){
+                if(err){
+                  throw new Error(err);
+                }
+                serv.getServiceAll().length.should.eql(4);
+                server.close();
+              });
+
+              serv.heartbeat('default',500);
+
+              serv.on('update',function(nodes){
+                if(step === 0){
+                  nodes.length.should.eql(3);
+                  step++;
+                  server = http.createServer(function(req,res){
+                    res.statusCode = obj.code;
+                    res.end('ok');
+                  }).listen('9222');
+                }else if(step === 1){
+                  nodes.length.should.eql(4);
+                  step++;
+                  obj.code = 400;
+                }else if(step === 2){
+                  nodes.length.should.eql(3);
+                  step++;
+                  iShare.unRegisterService(regId,function(err){
+                    server.close();
+                    done();
+                  });
+                }
+              });
+
+            }
+          };
+          regId = iShare.registerService(info.name,info.version,info.addr,info.meta,info.callback);
+        });
+
+      });
+      /*}}}*/
+
       /*{{{ test heartbeat set ok */
       it('test heartbeat set ok',function(done){
         var regId;
