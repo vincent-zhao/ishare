@@ -47,16 +47,6 @@ $ npm install ishare
 npm install
 ```
 
-# 使用
-```javascript
-var iShare = require('ishare').createClient({
-  zookeeper:'',//zk地址
-  username:'',//用户名（暂无用）
-  password:'',//密码（暂无用）
-  cachepath:''//本地化文件路径
-});
-```
-
 # 测试
 修改test/test_config目录中的zk地址，然后在根目录下运行make就可以进行单元测试
 
