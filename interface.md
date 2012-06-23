@@ -80,7 +80,9 @@ ishare.unRegisterService(serviceId, callback);
  */
 var callback = function (err) {
   if (err) {
+    //do something if err happens
   } else {
+    //do something if subscribe ok
   }
 }
 var service = ishare.subscribe(name, filter, callback);
@@ -105,6 +107,13 @@ var list = service.getServiceAll();
  *  callback为心跳监测函数的回调函数，心跳监测正常则回调空(callback())，如果有异常，则回调一个错误对象,callback(err);
  * @param {int} interval 健康监测函数的检查间隔时间，不设置则采用默认值
  */
+var func = function(addr, callback){
+  if (ok) {
+    callback();
+  } else {
+    callback(err);
+  }
+}
 service.heartbeat(func, interval);
 
 /**
@@ -131,6 +140,13 @@ service.on('err', function(err){
  * @param {all} content 共享资源
  * @param {function} callback 回调函数
  */
+var callback = function(err){
+  if (err) {
+    //do something if err happens
+  } else {
+    //do something if set ok
+  }
+}
 ishare.set(path, content, callback);
 ```
 
@@ -163,5 +179,12 @@ info.on('update', function(data){
  * @param {int} version 节点版本信息，由get返回
  * @param {function} callback 回调函数，同registerService回调函数
  */
+var callback = function(err){
+  if (err) {
+    //do something if err happens
+  } else {
+    //do something if delete ok
+  }
+}
 ishare.del(path, version, callback);
 ```
