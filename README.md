@@ -41,7 +41,6 @@
 ```bash
 $ npm install ishare 
 ```
-注：如果已经在全局下安装过zookeeper包，则只需要运行上述命令即可。如果什么都没有安装过，进入ishare安装目录，运行make install。你可能需要等待一会儿。
 
 然后进入ishare安装目录，运行：
 ```bash
