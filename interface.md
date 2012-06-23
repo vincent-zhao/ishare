@@ -1,6 +1,6 @@
 # 接口使用
 
-ishare初始化：
+### ishare初始化：
 
 提供zk地址，用户名密码等信息初始化ishare
 
@@ -15,7 +15,7 @@ var ishare = iShare.createClient({
 });
 ```
 
-注册服务：
+### 注册服务：
 
 如果想要把服务注册到zookeeper上，需要调用registerService方法。
 
@@ -39,7 +39,7 @@ var callback = function(err){
 var serviceId = ishare.registerService(name, version, addr, meta, callback);
 ```
 
-注销服务：
+### 注销服务：
 
 如果想要把服务从zookeeper上注销掉，调用unRegisterService方法。
 
@@ -59,7 +59,7 @@ ishare.unRegisterService(serviceId, callback);
 ```
 
 
-订阅并且获取服务:
+### 订阅并且获取服务:
 
 在获得机器列表前，需要订阅服务，以此让ishare去获得对应服务并且监听服务的变化。
 
@@ -130,7 +130,7 @@ service.on('err', function(err){
 });
 ```
 
-设置共享资源：
+### 设置共享资源：
 
 调用set方法在zookeeper上设置共享资源
 
@@ -150,7 +150,7 @@ var callback = function(err){
 ishare.set(path, content, callback);
 ```
 
-获取并监听共享资源：
+### 获取并监听共享资源：
 
 调用get获取zookeeper共享资源
 
@@ -169,7 +169,7 @@ info.on('update', function(data){
 });
 ```
 
-删除共享资源
+### 删除共享资源:
 
 调用del删除共享资源
 
