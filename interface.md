@@ -29,6 +29,13 @@ var ishare = iShare.createClient({
  * 判断callback第一个参数，如果存在，表示注册出现错误，如果为undefined表示注册成功。
  * @return {int}     返回服务id号，用于注销服务。
  */
+var callback = function(err){
+  if (err) {
+    //do something if err happens
+  } else {
+    //do something if register ok
+  }
+}
 var serviceId = ishare.registerService(name, version, addr, meta, callback);
 ```
 
@@ -41,6 +48,13 @@ var serviceId = ishare.registerService(name, version, addr, meta, callback);
  * @param {int} serviceId 服务id号
  * @param {function} callback 注销完毕后的回调函数，和registerService一样，需要判断第一个参数
  */
+var callback = function(err){
+  if (err) {
+    //do something if err happens
+  } else {
+    //do something if unregistered ok
+  }
+}
 ishare.unRegisterService(serviceId, callback);
 ```
 
@@ -64,6 +78,11 @@ ishare.unRegisterService(serviceId, callback);
  * @param {function} callback 订阅回调函数, 同注册的回调函数
  * @return {object} 服务对象
  */
+var callback = function (err) {
+  if (err) {
+  } else {
+  }
+}
 var service = ishare.subscribe(name, filter, callback);
 
 /**
@@ -104,7 +123,45 @@ service.on('err', function(err){
 
 设置共享资源：
 
-调用get方法在zookeeper上设置共享资源
+调用set方法在zookeeper上设置共享资源
 
 ```javascript
+/**
+ * @param {string} path 共享资源路径
+ * @param {all} content 共享资源
+ * @param {function} callback 回调函数
+ */
+ishare.set(path, content, callback);
+```
+
+获取并监听共享资源：
+
+调用get获取zookeeper共享资源
+
+get返回一个对象，可以监听在这个对象的一些事件上，以此响应资源的变化。
+
+```JavaScript
+/**
+ * @param {string} path 共享资源路径
+ * @param {function} callback 回调函数，第一个参数是错误信息，第二个参数是获取的资源版本，版本是zk对节点的版本信息。第三个参数是获取资源
+ * @return {object} 资源对象
+ */
+var info = ishare.get(path, callback);
+
+//获取的资源发生变化会触发update事件
+info.on('update', function(data){
+});
+```
+
+删除共享资源
+
+调用del删除共享资源
+
+```JavaScript
+/**
+ * @param {string} path 共享资源路径
+ * @param {int} version 节点版本信息，由get返回
+ * @param {function} callback 回调函数，同registerService回调函数
+ */
+ishare.del(path, version, callback);
 ```
