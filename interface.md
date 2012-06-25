@@ -1,8 +1,16 @@
 # 接口使用
 
+### zookeeper初始化
+
+ishare是建立在zookeeper集群上的，在zookeeper集群上需要初始化简单的结构来为ishare的使用做准备，如下：
+
+需要在zookeeper上的工作路径下建立service和app节点。
+* ishare的服务节点功能，包括注册注销服务是在service节点下进行的。每个服务节点需要手动在service节点下建立。
+* ishare的app节点用来给每个应用共享自己的资源信息，app节点下同样要简历每个服务节点。
+
 ### ishare初始化：
 
-提供zk地址，用户名密码等信息初始化ishare(注：zookeeper集群上要手动创建service和app节点，并且在service下建好服务节点，服务命名随意)
+提供zk地址，用户名密码等信息初始化ishare
 
 ```JavaScript
 var iShare = require('iShare');
