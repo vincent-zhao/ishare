@@ -2,7 +2,7 @@
 
 ### ishare初始化：
 
-提供zk地址，用户名密码等信息初始化ishare
+提供zk地址，用户名密码等信息初始化ishare(注：zookeeper集群上要手动创建service和app节点，并且在service下建好服务节点，服务命名随意)
 
 ```JavaScript
 var iShare = require('iShare');
