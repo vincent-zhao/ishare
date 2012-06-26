@@ -8,6 +8,7 @@ var EventEmitter = require('events').EventEmitter;
 var Zookeeper = require('zookeeper');
 var testConf  = require(__dirname+'/etc/test_config');
 var iShare    = require(__dirname+'/../lib/client').createClient(testConf);
+var Cache     = require(__dirname+'/../lib/classes/Cache');
 
 var serviceNode = 'a.b.c.d.testService';
 
@@ -92,6 +93,33 @@ describe('iShare test',function(){
     },2000);
   });
   /*}}}*/
+
+  describe('unit test', function(){
+    
+    /*{{{ delete old cache file test ok */
+    it('delete old cache file test', function(done){
+      var tmp = CONSTANTS.FILE_TIME_INTERVAL;
+      CONSTANTS.FILE_TIME_INTERVAL = 2*1000;
+      fs.writeFileSync(testConf.cachepath + CONSTANTS.SEP + '1', 'for test');
+      fs.writeFileSync(testConf.cachepath + CONSTANTS.SEP + '2', 'for test2');
+      setTimeout(function(){
+        fs.writeFileSync(testConf.cachepath + CONSTANTS.SEP + '3', 'for test3');
+        Cache.cleanOldCache();
+
+        var splits = testConf.cachepath.split('/');
+        var prefix = splits.pop();
+        var dir    = splits.join('/');
+
+        var files = fs.readdirSync(dir);
+        files.length.should.eql(1);
+
+        CONSTANTS.FILE_TIME_INTERVAL = tmp;
+        done();
+      }, 3000);
+    });
+    /*}}}*/
+
+  });
 
   describe('interface test',function(){
 
@@ -684,8 +712,6 @@ describe('iShare test',function(){
 
       /*{{{ test read service cache and zk recover later ok */
       it('test read service cache and zk recover later ok',function(done){
-        var tmpInterval = CONSTANTS.FILE_TIME_INTERVAL;
-        CONSTANTS.FILE_TIME_INTERVAL = 2*1000;
         var step = 0;
         try{
           var splits = testConf.cachepath.split('/');
@@ -702,52 +728,45 @@ describe('iShare test',function(){
         }catch(e){}
         //write fake cache file
         var key = JSON.stringify({name:serviceNode,filter:'2.0'});
-        var content = [{addr:'http://127.0.0.1:9114',meta:{}}];
-        var cache = {'service':{},'app':{}};
-        cache['service'][key] = content;
-        fs.writeFileSync(testConf.cachepath+CONSTANTS.SEP+'0',JSON.stringify(cache));
-        setTimeout(function(){
-          var content1 = [{addr:'http://127.0.0.1:9115',meta:{}}];
-          var cache1 = {'service':{},'app':{}};
-          cache1['service'][key] = content1;
-          fs.writeFileSync(testConf.cachepath+CONSTANTS.SEP+'1',JSON.stringify(cache1));
+        var content1 = [{addr:'http://127.0.0.1:9115',meta:{}}];
+        var cache1 = {'service':{},'app':{}};
+        cache1['service'][key] = content1;
+        fs.writeFileSync(testConf.cachepath+CONSTANTS.SEP+'1',JSON.stringify(cache1));
 
-          var content2 = [{addr:'http://127.0.0.1:9116',meta:{}}];
-          var cache2 = {'service':{},'app':{}};
-          cache2['service'][key] = content2;
-          fs.writeFileSync(testConf.cachepath+CONSTANTS.SEP+'2',JSON.stringify(cache2));
+        var content2 = [{addr:'http://127.0.0.1:9116',meta:{}}];
+        var cache2 = {'service':{},'app':{}};
+        cache2['service'][key] = content2;
+        fs.writeFileSync(testConf.cachepath+CONSTANTS.SEP+'2',JSON.stringify(cache2));
 
-          var splits = testConf.zookeeper.split(':');
-          splits.pop();
-          splits.push('2188/');
-          var fake = splits.join(':');
-          //set useless config
+        var splits = testConf.zookeeper.split(':');
+        splits.pop();
+        splits.push('2188/');
+        var fake = splits.join(':');
+        //set useless config
+        iShare.setConfig({
+          zookeeper : fake,
+          username : '',
+          password : '',
+          cachepath : testConf.cachepath
+        });
+
+        var serv = iShare.subscribe(serviceNode,'2.0',function(err){
+          if(err){
+            throw new Error(err);
+          }
+          //get cache content
+          if(step !== 0){return;}
+          serv.getServiceAll().length.should.eql(2);
+          step++;
+          //set back to normal config
           iShare.setConfig({
-            zookeeper : fake,
+            zookeeper : testConf.zookeeper,
             username : '',
             password : '',
             cachepath : testConf.cachepath
           });
-
-          var serv = iShare.subscribe(serviceNode,'2.0',function(err){
-            if(err){
-              throw new Error(err);
-            }
-            //get cache content
-            if(step !== 0){return;}
-            serv.getServiceAll().length.should.eql(2);
-            step++;
-            //set back to normal config
-            iShare.setConfig({
-              zookeeper : testConf.zookeeper,
-              username : '',
-              password : '',
-              cachepath : testConf.cachepath
-            });
-            CONSTANTS.FILE_TIME_INTERVAL = tmpInterval;
-            done();
-          });
-        },3000);
+          done();
+        });
 
       });
       /*}}}*/
@@ -1013,8 +1032,6 @@ describe('iShare test',function(){
 
       /*{{{ test read app cache and zk recover later ok*/
       it('test read app cache and zk recover later ok', function(done){
-        var tmpInterval = CONSTANTS.FILE_TIME_INTERVAL;
-        CONSTANTS.FILE_TIME_INTERVAL = 2*1000;
         try{
           var splits = testConf.cachepath.split('/');
           var prefix = splits.pop();
@@ -1060,7 +1077,6 @@ describe('iShare test',function(){
             password : '',
             cachepath : testConf.cachepath
           });
-          CONSTANTS.FILE_TIME_INTERVAL = tmpInterval;
           done();
         });
 
