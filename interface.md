@@ -114,6 +114,7 @@ var list = service.getServiceAll();
  *  addr为服务地址
  *  callback为心跳监测函数的回调函数，心跳监测正常则回调空(callback())，如果有异常，则回调一个错误对象,callback(err);
  * @param {int} interval 健康监测函数的检查间隔时间，不设置则采用默认值
+ * @param {function} logFunc 日志记录回调函数，如果心跳检测失败会调用这个函数，参数为错误信息对象JSON.stringify后的结果，错误信息对象包含心跳测试的地址和具体的错误描述，不设置则心跳不正常时不记录
  */
 var func = function(addr, callback){
   if (ok) {
@@ -122,7 +123,15 @@ var func = function(addr, callback){
     callback(err);
   }
 }
-service.heartbeat(func, interval);
+
+var logFunc = function(msg){
+  //do something with msg. msg is an json string
+  var content = JSON.parse(msg);
+  var testAddress = content.addr;
+  var errObject = content.err;
+}
+
+service.heartbeat(func, interval, logFunc);
 
 /**
  * 当监听的服务发生变化时，会触发update事件，并且把新的服务列表返回。
