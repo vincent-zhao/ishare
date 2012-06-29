@@ -111,7 +111,14 @@ describe('iShare test',function(){
         var dir    = splits.join('/');
 
         var files = fs.readdirSync(dir);
-        files.length.should.eql(1);
+        var count = 0;
+        var exp = new RegExp("^" + testConf.cachepath.split('/').pop(), 'i');
+        for(var i = 0;i < files.length; i++){
+          if(exp.test(files[i])){
+            count++;
+          }
+        }
+        count.should.eql(1);
 
         CONSTANTS.FILE_TIME_INTERVAL = tmp;
         done();
@@ -618,6 +625,45 @@ describe('iShare test',function(){
           regId = iShare.registerService(info.name,info.version,info.addr,info.meta,info.callback);
         });
 
+      });
+      /*}}}*/
+
+      /*{{{ test heartbeat log function ok */
+      it('test heartbeat log function ok',function(done){
+        var ok = false;
+        var saveContent = '';
+        var info = {
+          name : serviceNode,
+          version : '2.0',
+          addr : 'http://127.0.0.1:9222',
+          callback : function(err){
+            if(err){
+              throw new Error(err);
+            }
+
+            var serv = iShare.subscribe(serviceNode,'2.0',function(err){
+              if(err){
+                throw new Error(err);
+              }
+              serv.getServiceAll().length.should.eql(4);
+            });
+
+            serv.heartbeat('default', 500, function(content){
+              saveContent = content;
+              fs.writeFileSync(__dirname + '/tmp/tmpHBLog', content);
+            });
+
+            serv.on('update',function(nodes){
+              var get = fs.readFileSync(__dirname + '/tmp/tmpHBLog').toString();
+              get.should.eql(saveContent);
+              if(ok){return;}
+              ok = true;
+              done();
+            });
+
+          }
+        };
+        regId = iShare.registerService(info.name,info.version,info.addr,info.meta,info.callback);
       });
       /*}}}*/
 
