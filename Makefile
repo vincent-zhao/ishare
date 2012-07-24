@@ -5,6 +5,7 @@ test:
 
 clean:
 	@rm -rf test/tmp/.cache*
+	@rm -rf test/tmp/*
 
 cov: 
 	@sh build/install.sh

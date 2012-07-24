@@ -726,6 +726,50 @@ describe('iShare test',function(){
       });
       /*}}}*/
 
+      /*{{{ test heartbeat not empty ok */
+      it('test heartbeat not empty ok',function(done){
+        var regId;
+        var server = http.createServer(function(req,res){
+          res.end('ok');
+        }).listen('9333',function(){
+          var step = 0;
+          var info = {
+            name : serviceNode,
+            version : '3.0',
+            addr : 'http://127.0.0.1:9333',
+            callback : function(err){
+              if(err){
+                throw new Error(err);
+              }
+
+              var serv = iShare.subscribe(serviceNode,'3.0',function(err){
+                if(err){
+                  throw new Error(err);
+                }
+                serv.getServiceAll().length.should.eql(1);
+                server.close();
+                
+                setTimeout(function(){
+                  serv.getServiceAll().length.should.eql(1);
+                  zk.a_get_children('/'+CONSTANTS.SERVICE_ROOT+'/'+serviceNode+'/3.0', false, function(rc, error, children){
+                    deleteNode('/'+CONSTANTS.SERVICE_ROOT+'/'+serviceNode+'/3.0/'+children[0], function(){
+                      deleteNode('/'+CONSTANTS.SERVICE_ROOT+'/'+serviceNode+'/3.0', function(){
+                        done();
+                      });
+                    });
+                  });
+                },4000);
+              });
+
+              serv.heartbeat('default',500);
+            }
+          };
+          regId = iShare.registerService(info.name,info.version,info.addr,info.meta,info.callback);
+        });
+
+      });
+      /*}}}*/
+
       /*{{{ test write service cache ok*/
       it('test write service cache ok',function(done){
         try{
@@ -1212,7 +1256,7 @@ function recoverZKTree(cb,ignore){
 
 /*{{{ deleteNode()*/
 function deleteNode(path,cb){
-  zk.a_delete_(path,0,function(rc,error){
+  zk.a_delete_(path,-1,function(rc,error){
     if(rc != 0){
       cb('wrong in deleteNode');
     }else{
